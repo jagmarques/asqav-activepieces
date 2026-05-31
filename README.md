@@ -1,8 +1,10 @@
 # Asqav piece for Activepieces
 
-An [Activepieces](https://www.activepieces.com) piece that signs an action with an
-[Asqav](https://asqav.com) agent and returns the signed receipt. Use it inside a flow
-to produce a tamper-evident, verifiable record of an automated step.
+Stop a rogue agent before it acts, and prove what it tried. An
+[Activepieces](https://www.activepieces.com) piece that sends an action to an
+[Asqav](https://asqav.com) agent for a policy decision: a permitted action returns a
+signed receipt, and a denied action is refused server-side with a forensic record of
+the attempt. Either way you get a tamper-evident, verifiable record of the step.
 
 This piece is built and maintained by the Asqav team.
 
