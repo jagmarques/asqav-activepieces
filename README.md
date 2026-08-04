@@ -1,61 +1,52 @@
 # Asqav piece for Activepieces
 
-Stop a rogue agent before it acts, and prove what it tried. This
-[Activepieces](https://www.activepieces.com) piece sends an action to an
-[Asqav](https://asqav.com) agent for a policy decision. A permitted action returns a
-signed receipt. A denied action is refused server-side, with a forensic record of
-the attempt. Either way you get a tamper-evident record of the step that you can verify later.
+Sign AI agent actions and verify the tamper-evident receipts that prove what each agent did. This repo holds the source of an [Activepieces](https://www.activepieces.com) community piece for [Asqav](https://asqav.com).
 
 This piece is built and maintained by the Asqav team.
 
-## What it does
+## Layout
 
-The piece exposes a single action, Sign Action. At run time it:
+The files under `packages/pieces/community/asqav/` are laid out so they copy 1:1 into a fork of [activepieces/activepieces](https://github.com/activepieces/activepieces) at the same path. The piece follows the shape of recently merged community pieces: `"type": "commonjs"`, `workspace:*` dependencies on `@activepieces/pieces-framework`, `@activepieces/pieces-common`, and `@activepieces/shared`, plus the standard `tsconfig.json`, `tsconfig.lib.json`, and `.eslintrc.json`.
 
-1. Initialises the Asqav SDK with your API key.
-2. Creates an Asqav agent named `activepieces`.
-3. Signs the supplied action and returns the receipt.
+A monorepo PR additionally needs, inside the fork:
 
-All cryptography happens server-side in the Asqav cloud. The piece is an HTTP client only.
+1. A `tsconfig.base.json` path entry: `"@activepieces/piece-asqav": ["packages/pieces/community/asqav/src/index.ts"]` (alphabetical order).
+2. A regenerated `bun.lock` (`bun install` at the repo root).
 
-## Action: Sign Action
+Lint and build only run inside their monorepo, since the piece configs extend the repo root:
 
-Properties:
+```
+npx turbo run lint build --filter=@activepieces/piece-asqav
+```
 
-- Action Type (Short Text, required): namespaced action identifier to sign, for
-  example `api:call` or `email:send`.
-- Context (JSON, optional): a JSON object of non-sensitive metadata to bind into
-  the receipt.
+## Actions
 
-Returns the Asqav `SignatureResponse`, including:
+- **Sign Action**: signs an action with a named Asqav agent and returns the receipt, including the signature ID and a verification URL. The agent is reused when it already exists and created on first run. An optional Compliance Mode checkbox requests a policy-evaluated compliance receipt.
+- **Verify Signature**: verifies a signed receipt by its signature ID and returns the verification result.
+- **Custom API Call**: calls any Asqav API endpoint with the stored connection.
 
-- `signatureId`: identifier of the signed record.
-- `signature`: the signature value.
-- `actionId`: identifier of the signed action.
-- `timestamp`: signing time.
-- `verificationUrl`: URL to verify the receipt.
+All cryptography happens server-side in the Asqav cloud. The piece is an HTTP client only, built on `@activepieces/pieces-common`'s `httpClient`.
 
 ## Authentication
 
-This piece uses a single secret, your Asqav API key.
+The piece uses a single secret, your Asqav API key.
 
 1. Create an API key at https://asqav.com.
 2. In Activepieces, add a new connection for the Asqav piece.
-3. Paste the API key into the Asqav API Key field.
+3. Paste the API key into the API Key field.
 
-The key is stored as a secret by Activepieces and is sent only to the Asqav API.
+The connection validates the key against the Asqav API when you save it and shows a readable error when the key is wrong. The key is stored as a secret by Activepieces and is sent only to the Asqav API.
 
-## Development
+## Error handling
 
-```
-npm install
-npm run build
-npm test
-```
+Asqav API errors map to messages that say what to fix:
 
-`npm test` runs the unit test for the action with the Asqav SDK mocked, so no
-network calls are made.
+- 401: invalid API key, reconnect with a current key.
+- 403: missing scope, suspended agent, or a content-scan block, with the server detail included.
+- 412: compliance precondition failed, with the exact reason (no matching policy, or the organization requires compliance mode).
+- 422: invalid step inputs, with the offending field named.
+- 429: rate limit reached.
 
 ## License
 
-MIT
+MIT, see [LICENSE](LICENSE).
