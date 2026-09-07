@@ -1,17 +1,18 @@
 {
   "name": "@activepieces/piece-asqav",
   "version": "0.0.1",
+  "license": "Elastic-2.0",
   "type": "commonjs",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
+  "files": ["dist", "README.md", "LICENSE"],
   "dependencies": {
-    "@activepieces/pieces-common": "workspace:*",
-    "@activepieces/pieces-framework": "workspace:*",
-    "@activepieces/shared": "workspace:*",
+    "@activepieces/pieces-framework": "0.32.0",
+    "@activepieces/shared": "0.95.1",
     "tslib": "2.6.2"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.lib.json && cp package.json dist/",
+    "build": "tsc -p tsconfig.lib.json",
     "lint": "eslint 'src/**/*.ts'"
   }
 }

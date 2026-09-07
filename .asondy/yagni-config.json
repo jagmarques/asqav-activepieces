@@ -1,0 +1,12 @@
+{
+  "ignore": [
+    "scripts/package.cjs:scripts/package.cjs",
+    "scripts/test-package.cjs:scripts/test-package.cjs",
+    "scripts/consume.cjs:scripts/consume.cjs"
+  ],
+  "reasons": {
+    "scripts/package.cjs:scripts/package.cjs": "Executed by the package npm script, which CI invokes. The detector's entry roots cover bin/main and check.sh but omit npm scripts.",
+    "scripts/test-package.cjs:scripts/test-package.cjs": "Executed by the test:package npm script in CI; it normally installs and runs the packed consumer.",
+    "scripts/consume.cjs:scripts/consume.cjs": "Copied and executed by test-package.cjs in the normal scratch installation. Only the whole-file finding is excepted; unused named symbols remain checked."
+  }
+}

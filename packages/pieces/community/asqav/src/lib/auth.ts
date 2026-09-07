@@ -1,5 +1,4 @@
 import { PieceAuth } from '@activepieces/pieces-framework';
-import { HttpMethod } from '@activepieces/pieces-common';
 import { asqavApiCall } from './common';
 
 export const asqavAuth = PieceAuth.SecretText({
@@ -13,7 +12,7 @@ export const asqavAuth = PieceAuth.SecretText({
     try {
       await asqavApiCall({
         apiKey: auth,
-        method: HttpMethod.GET,
+        method: 'GET',
         resourceUri: '/agents',
         queryParams: { limit: '1' },
       });
@@ -22,7 +21,7 @@ export const asqavAuth = PieceAuth.SecretText({
       return {
         valid: false,
         error:
-          'Invalid API key. Copy a current key from your Asqav dashboard under API Keys.',
+          'Asqav could not validate the connection. Check the API key, its agent-list permission and service availability.',
       };
     }
   },
