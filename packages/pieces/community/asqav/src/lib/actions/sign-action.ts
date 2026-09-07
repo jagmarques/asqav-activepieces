@@ -1,6 +1,5 @@
 import { createAction, Property } from '@activepieces/pieces-framework';
-import { HttpMethod } from '@activepieces/pieces-common';
-import { asqavApiCall, getOrCreateAgent } from '../common';
+import { asqavApiCall, getOrCreateAgent, requiredText } from '../common';
 import { asqavAuth } from '../auth';
 
 export const signAction = createAction({
@@ -8,12 +7,12 @@ export const signAction = createAction({
   auth: asqavAuth,
   displayName: 'Sign Action',
   description:
-    'Sign an agent action with Asqav and get back a tamper-evident receipt with a verification URL.',
+    'Submit configured action data for Asqav signing and return the API response.',
   props: {
     agentName: Property.ShortText({
       displayName: 'Agent Name',
       description:
-        'The Asqav agent that signs this action. Reused when it already exists, created on first run.',
+        'Reuse an exact-name match in the first 50 non-revoked search results, or create an agent.',
       required: true,
       defaultValue: 'activepieces',
     }),
@@ -26,7 +25,7 @@ export const signAction = createAction({
     context: Property.Json({
       displayName: 'Context',
       description:
-        'Optional JSON object of non-sensitive metadata bound into the signed receipt.',
+        'Optional JSON object sent in full to the Asqav API.',
       required: false,
     }),
     complianceMode: Property.Checkbox({
@@ -38,14 +37,18 @@ export const signAction = createAction({
     }),
   },
   async run(context) {
-    const apiKey = context.auth.secret_text;
+    const apiKey = requiredText(context.auth?.secret_text, 'API key');
     const { agentName, actionType, complianceMode } = context.propsValue;
-
+    requiredText(agentName, 'Agent name');
+    requiredText(actionType, 'Action type');
+    const value = context.propsValue.context ?? {};
+    if (typeof value !== 'object' || Array.isArray(value)) throw new Error('Context must be a JSON object.');
+    if (complianceMode !== undefined && typeof complianceMode !== 'boolean') throw new Error('Compliance Mode must be a boolean.');
     const agent = await getOrCreateAgent(apiKey, agentName);
 
     const body: Record<string, unknown> = {
       action_type: actionType,
-      context: context.propsValue.context ?? {},
+      context: value,
       session_id: null,
     };
     if (complianceMode) {
@@ -54,8 +57,8 @@ export const signAction = createAction({
 
     return asqavApiCall<Record<string, unknown>>({
       apiKey,
-      method: HttpMethod.POST,
-      resourceUri: `/agents/${agent.agent_id}/sign`,
+      method: 'POST',
+      resourceUri: `/agents/${encodeURIComponent(requiredText(agent.agent_id, 'Agent identifier'))}/sign`,
       body,
     });
   },

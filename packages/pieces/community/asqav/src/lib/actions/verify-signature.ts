@@ -1,6 +1,5 @@
 import { createAction, Property } from '@activepieces/pieces-framework';
-import { HttpMethod } from '@activepieces/pieces-common';
-import { asqavApiCall } from '../common';
+import { asqavApiCall, requiredText } from '../common';
 import { asqavAuth } from '../auth';
 
 export const verifySignature = createAction({
@@ -8,7 +7,7 @@ export const verifySignature = createAction({
   auth: asqavAuth,
   displayName: 'Verify Signature',
   description:
-    'Verify a signed Asqav receipt by its signature ID and return the verification result.',
+    'Request the hosted verification result for an Asqav signature identifier.',
   props: {
     signatureId: Property.ShortText({
       displayName: 'Signature ID',
@@ -19,9 +18,9 @@ export const verifySignature = createAction({
   },
   async run(context) {
     return asqavApiCall<Record<string, unknown>>({
-      apiKey: context.auth.secret_text,
-      method: HttpMethod.GET,
-      resourceUri: `/verify/${context.propsValue.signatureId}`,
+      apiKey: requiredText(context.auth?.secret_text, 'API key'),
+      method: 'GET',
+      resourceUri: `/verify/${encodeURIComponent(requiredText(context.propsValue.signatureId, 'Signature identifier'))}`,
     });
   },
 });
