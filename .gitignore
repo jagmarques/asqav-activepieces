@@ -2,3 +2,6 @@ node_modules/
 dist/
 dist-test/
 *.log
+coverage/
+packages/pieces/community/asqav/README.md
+packages/pieces/community/asqav/LICENSE

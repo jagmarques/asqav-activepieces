@@ -1,0 +1,28 @@
+{
+  "name": "asqav-activepieces-workspace",
+  "private": true,
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "workspaces": [
+    "packages/pieces/community/asqav"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @activepieces/piece-asqav",
+    "lint": "eslint packages/pieces/community/asqav/src tests scripts",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage",
+    "package": "npm run build && node scripts/package.cjs",
+    "test:package": "node scripts/test-package.cjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.1",
+    "@types/node": "22.19.7",
+    "@vitest/coverage-v8": "5.0.0",
+    "eslint": "9.39.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.48.1",
+    "vitest": "5.0.0",
+    "nock": "14.0.17"
+  }
+}
