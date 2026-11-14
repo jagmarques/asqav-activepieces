@@ -6,7 +6,7 @@ on:
     branches: [main]
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, hz-ci-light]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,7 +20,7 @@ jobs:
       - run: npm run package
       - run: npm run test:package
   ci-ok:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, hz-ci-light]
     needs: test
     steps:
       - run: echo "CI passed"
