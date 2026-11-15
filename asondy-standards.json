@@ -1,0 +1,13 @@
+{
+  "ci-runner-allowlist": [
+    {
+      "labels": [
+        "self-hosted",
+        "hz-ci-light"
+      ],
+      "owner": "founder",
+      "hostRole": "ci",
+      "reviewed": "2026-11-15"
+    }
+  ]
+}
